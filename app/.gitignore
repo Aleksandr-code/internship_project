@@ -8,3 +8,8 @@
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
+
+###> pentatrion/vite-bundle ###
+assets/vue/node_modules/
+/public/build/
+###< pentatrion/vite-bundle ###

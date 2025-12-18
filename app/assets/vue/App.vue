@@ -5,7 +5,10 @@
 </script>
 
 <template>
-    <div>Hello {{test}}</div>
+    <div class="container">
+        <header>Header</header>
+        <router-view></router-view>
+    </div>
 </template>
 
 <style scoped>

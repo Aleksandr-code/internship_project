@@ -4,9 +4,9 @@ import {onMounted, ref, computed} from 'vue'
 import {useInventoryStore} from "../../stores/inventories.js";
 import {useCategoryStore} from "../../stores/categories.js";
 import {useTagStore} from "../../stores/tags.js";
-import {useRouter, useRoute} from "vue-router";
+import {useRouter} from "vue-router";
 
-const route = useRoute()
+const router = useRouter()
 const storeInventory = useInventoryStore()
 const storeCategory = useCategoryStore()
 const storeTag = useTagStore()
@@ -43,8 +43,8 @@ const submitInventory = async() => {
     inventory.value.created_at = new Date()
     inventory.value.tags_id = tagValue.value.map(tag => tag.id)
     try {
-        const updatedInventory = await storeInventory.editInventory(route.params.id, inventory.value)
-        console.log('update inventory ok')
+        const savedInventory = await storeInventory.addInventory(inventory.value)
+        router.push({name: 'inventory_show', params: {id: savedInventory.id}, hash:'#fields'})
     } catch (err) {
         console.log(err)
     }
@@ -52,16 +52,6 @@ const submitInventory = async() => {
 
 onMounted(async () => {
     await storeCategory.loadCategories()
-    await storeInventory.loadInventory(route.params.id)
-    if(storeInventory.currentInventory){
-        inventory.value.title = storeInventory.currentInventory.title
-        inventory.value.description = storeInventory.currentInventory.description
-        inventory.value.image_url = storeInventory.currentInventory.imageUrl
-        inventory.value.category_id = storeInventory.currentInventory.category.id
-        tagValue.value = storeInventory.currentInventory.tags
-        inventory.value.created_at = storeInventory.currentInventory.createdAt
-        inventory.value.is_public = storeInventory.currentInventory.isPublic
-    }
 })
 
 </script>
@@ -94,7 +84,7 @@ onMounted(async () => {
             <label class="input-group-text" for="imgInventory">Upload</label>
         </div>
     </div>
-    <button class="btn btn-primary" @click="submitInventory">Save</button>
+    <button class="btn btn-primary" @click="submitInventory">Create</button>
 </template>
 
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>

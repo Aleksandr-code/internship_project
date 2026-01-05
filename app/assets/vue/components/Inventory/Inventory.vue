@@ -1,12 +1,25 @@
 <script setup>
-    import {ref} from 'vue'
-    import InventoryItems from "./InventotyItems/InventoryItems.vue";
-    import InventorySettings from "./InventorySettings.vue";
-    const activeTab = ref(3)
+import {onMounted, ref} from 'vue'
+import { useRoute } from 'vue-router'
+import InventoryItems from "./InventotyItems/InventoryItems.vue";
+import InventorySettings from "./InventorySettings.vue";
 
-    const setActiveTab = (tabIndex) => {
-        activeTab.value = tabIndex
+const route = useRoute()
+
+const activeTab = ref(1)
+
+const setActiveTab = (tabIndex) => {
+    activeTab.value = tabIndex
+}
+
+onMounted(() => {
+    if (route.hash === '#settings'){
+        activeTab.value = 3
     }
+    if (route.hash === '#fields'){
+        activeTab.value = 5
+    }
+})
 
 </script>
 

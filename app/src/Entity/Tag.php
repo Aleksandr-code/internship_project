@@ -11,12 +11,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Entity(repositoryClass: TagRepository::class)]
 class Tag
 {
-    #[Groups(groups: ['inventory:main'])]
+    #[Groups(groups: ['inventory:main', 'tag:list'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
-    #[Groups(groups: ['inventory:main'])]
+    #[Groups(groups: ['inventory:main', 'tag:list'])]
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 

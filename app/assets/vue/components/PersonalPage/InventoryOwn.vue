@@ -1,5 +1,11 @@
 <script setup>
+import { useInventoryStore } from '../../stores/inventories.js'
+import {onMounted} from "vue";
+const store = useInventoryStore()
 
+onMounted(() => {
+    store.loadInventories()
+})
 </script>
 
 <template>
@@ -7,7 +13,7 @@
     <hr>
     <div class="d-flex justify-content-between mb-4" id="toolbar">
         <div class="d-flex gap-2">
-            <button class="btn btn-outline-primary">Add Inventory</button>
+            <router-link class="btn btn-outline-primary" :to="{name: 'inventory_create'}">Add Inventory</router-link>
             <button class="btn btn-outline-warning">Edit</button>
             <button class="btn btn-outline-danger">Delete</button>
         </div>
@@ -37,16 +43,28 @@
                 <th scope="col">Category</th>
                 <th scope="col">Access</th>
                 <th scope="col">Created at</th>
+                <th scope="col"></th>
             </tr>
             </thead>
-            <tbody>
-            <tr>
-                <th scope="row">1</th>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>@mdo</td>
+            <tbody v-if="store.loading">
+                <tr >Loading...</tr>
+            </tbody>
+            <tbody v-else-if="store.error">
+                <tr> Error loaded data</tr>
+            </tbody>
+            <tbody v-else>
+            <tr v-for="inventory in store.inventories" :key="inventory.id">
+                <th scope="row">{{inventory.id}}</th>
+                <td>
+                    <router-link :to="{name: 'inventory_show', params: {id: inventory.id}}">{{inventory.title}}</router-link>
+                </td>
+                <td>{{inventory.description}}</td>
+                <td>{{inventory.category.title}}</td>
+                <td>{{inventory.isPublic}}</td>
+                <td>{{inventory.createdAt}}</td>
+                <td>
+                    <router-link class="btn btn-warning" :to="{name: 'inventory_show', params: {id: inventory.id}, hash: '#settings'}">Edit</router-link>
+                </td>
             </tr>
             </tbody>
         </table>

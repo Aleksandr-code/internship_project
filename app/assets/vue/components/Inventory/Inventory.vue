@@ -3,6 +3,7 @@ import {onMounted, ref} from 'vue'
 import { useRoute } from 'vue-router'
 import InventoryItems from "./InventotyItems/InventoryItems.vue";
 import InventorySettings from "./InventorySettings.vue";
+import InventoryFields from "./InventoryFields.vue";
 
 const route = useRoute()
 
@@ -66,7 +67,7 @@ onMounted(() => {
             Custom id
         </div>
         <div class="tab-pane fade" :class="{ show: activeTab === 5, active:  activeTab === 5}" id="fields">
-            Fields
+            <InventoryFields></InventoryFields>
         </div>
         <div class="tab-pane fade" :class="{ show: activeTab === 6, active:  activeTab === 6}" id="access">
             Access

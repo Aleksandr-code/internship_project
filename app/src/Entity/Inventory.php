@@ -135,9 +135,17 @@ class Inventory
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $customBool3Name = null;
 
+    /**
+     * @var Collection<int, InventoryItem>
+     */
+    #[Groups(groups: ['inventory:items'])]
+    #[ORM\OneToMany(targetEntity: InventoryItem::class, mappedBy: 'inventory', cascade: ['remove'])]
+    private Collection $inventoryItems;
+
     public function __construct()
     {
         $this->tags = new ArrayCollection();
+        $this->inventoryItems = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -597,6 +605,36 @@ class Inventory
     public function setCustomBool3Name(?string $customBool3Name): static
     {
         $this->customBool3Name = $customBool3Name;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, InventoryItem>
+     */
+    public function getInventoryItems(): Collection
+    {
+        return $this->inventoryItems;
+    }
+
+    public function addInventoryItem(InventoryItem $inventoryItem): static
+    {
+        if (!$this->inventoryItems->contains($inventoryItem)) {
+            $this->inventoryItems->add($inventoryItem);
+            $inventoryItem->setInventory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInventoryItem(InventoryItem $inventoryItem): static
+    {
+        if ($this->inventoryItems->removeElement($inventoryItem)) {
+            // set the owning side to null (unless already changed)
+            if ($inventoryItem->getInventory() === $this) {
+                $inventoryItem->setInventory(null);
+            }
+        }
 
         return $this;
     }

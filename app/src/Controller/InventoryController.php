@@ -88,7 +88,7 @@ final class InventoryController extends AbstractController
             $tag = $this->em->getReference(Tag::class, $tagId);
             $inventory->addTag($tag);
         }
-        $inventory->setCreatedAt(new \DateTimeImmutable($data['created_at']));
+        //$inventory->setCreatedAt(new \DateTimeImmutable($data['created_at']));
         $inventory->setIsPublic($data['is_public']);
 
         $this->em->persist($inventory);
@@ -102,7 +102,7 @@ final class InventoryController extends AbstractController
     }
 
     #[Route('/api/inventory', name: 'app_inventory_destroy', methods: ['DELETE'])]
-    public function destroy(Request $request): Response
+    public function destroy(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         foreach ($data['ids'] as $inventoryId) {

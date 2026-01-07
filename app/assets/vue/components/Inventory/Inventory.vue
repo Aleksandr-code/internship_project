@@ -26,7 +26,6 @@ onMounted(() => {
 
 <template>
     <h3 class="mb-3">New Inventory</h3>
-    <button class="btn btn-primary">Save</button>
     <ul class="nav nav-tabs">
         <li class="nav-item">
             <a class="nav-link" :class="{ active: activeTab === 1 }" data-toggle="tab" href="#items" @click="setActiveTab(1)">Items</a>

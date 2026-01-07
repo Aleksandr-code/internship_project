@@ -6,7 +6,6 @@ import {useRoute} from "vue-router";
 const route = useRoute()
 const inventoryFieldsStore = useInventoryFieldsStore()
 
-// === 1. Исходные данные от сервера ===
 const rawData = ref({
     customString1State: null, customString1Name: null,
     customString2State: null, customString2Name: null,
@@ -25,7 +24,6 @@ const rawData = ref({
     customBool3State: null, customBool3Name: null
 });
 
-// === 2. Конфигурация типов ===
 const typeOptions = [
     { value: 'string', label: 'String' },
     { value: 'text', label: 'Text' },
@@ -34,7 +32,6 @@ const typeOptions = [
     { value: 'bool', label: 'Checkbox' }
 ];
 
-// === 3. Реактивное состояние ===
 const newField = reactive({
     type: 'string',
     name: ''
@@ -42,7 +39,6 @@ const newField = reactive({
 
 const activeFields = reactive([]); // все активные поля (макс. 15 = 5 типов × 3)
 
-// === 4. Инициализация из rawData ===
 onMounted(async () => {
     await inventoryFieldsStore.loadInventoryFields(route.params.id)
     rawData.value = inventoryFieldsStore.inventoryFields
@@ -77,13 +73,11 @@ function parseRawData() {
     }
 }
 
-// === 5. Проверка: можно ли добавить ещё поле этого типа? ===
 const canAddType = computed(() => {
     const count = activeFields.filter(f => f.type === newField.type).length;
     return count < 3;
 });
 
-// === 6. Добавление нового поля ===
 function addField() {
     if (!newField.name.trim()) {
         console.log('Input name');
@@ -109,7 +103,6 @@ function addField() {
     newField.name = '';
 }
 
-// === 7. Удаление поля ===
 function removeField(id) {
     const index = activeFields.findIndex(f => f.id === id);
     if (index !== -1) {
@@ -117,11 +110,9 @@ function removeField(id) {
     }
 }
 
-// === 8. Сохранение: сериализация в flat-объект ===
 function saveFields() {
     const payload = {};
 
-    // Инициализируем все как null
     typeOptions.forEach(opt => {
         const typeName = opt.value.charAt(0).toUpperCase() + opt.value.slice(1);
         for (let i = 1; i <= 3; i++) {
@@ -130,7 +121,6 @@ function saveFields() {
         }
     });
 
-    // Заполняем из activeFields
     activeFields.forEach(field => {
         const typeName = field.type.charAt(0).toUpperCase() + field.type.slice(1);
         payload[`custom${typeName}${field.index}Name`] = field.name;

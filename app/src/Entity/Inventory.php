@@ -142,6 +142,10 @@ class Inventory
     #[ORM\OneToMany(targetEntity: InventoryItem::class, mappedBy: 'inventory', cascade: ['remove'])]
     private Collection $inventoryItems;
 
+    #[ORM\ManyToOne(inversedBy: 'inventories')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $owner = null;
+
     public function __construct()
     {
         $this->tags = new ArrayCollection();
@@ -635,6 +639,18 @@ class Inventory
                 $inventoryItem->setInventory(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getOwner(): ?User
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(?User $owner): static
+    {
+        $this->owner = $owner;
 
         return $this;
     }

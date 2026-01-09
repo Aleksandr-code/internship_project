@@ -32,7 +32,7 @@ const handleLogin = async () => {
                 <label for="floatingPassword">Password</label>
             </div>
             <div class="text-end my-3">
-                <a href="#" class="text-decoration-none">Register</a>
+                <router-link class="text-decoration-none" :to="{name: 'register'}">Register</router-link>
             </div>
             <p v-if="error" class="text-bg-danger p-2">{{ error }}</p>
             <button class="btn btn-primary w-100 py-2" type="submit" :disabled="loading">Sign in</button>

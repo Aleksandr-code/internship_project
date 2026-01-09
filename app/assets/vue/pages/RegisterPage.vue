@@ -31,9 +31,9 @@ const handleRegister = async () => {
                 <label for="floatingPassword">Password</label>
             </div>
             <p v-if="error" class="text-bg-danger p-2 mt-3">{{ error }}</p>
-            <button class="btn btn-primary w-100 py-2 mt-3" type="submit">Register</button>
+            <button class="btn btn-primary w-100 py-2 mt-3" type="submit" :disabled="loading">Register</button>
             <div class="text-center my-3">
-                <a href="#" class="text-decoration-none">Sign in</a>
+                <router-link class="text-decoration-none" :to="{name: 'login'}">Sign in</router-link>
             </div>
             <p class="mt-5 mb-3 text-body-secondary text-center">© 2025</p>
         </form>

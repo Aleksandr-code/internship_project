@@ -5,6 +5,13 @@ import InventoryItems from "./InventotyItems/InventoryItems.vue";
 import InventorySettings from "./InventorySettings.vue";
 import InventoryFields from "./InventoryFields.vue";
 
+defineProps({
+    id: {
+        type: [String, Number],
+        required: false
+    }
+})
+
 const route = useRoute()
 
 const activeTab = ref(1)

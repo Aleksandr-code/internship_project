@@ -20,6 +20,8 @@ COPY --from=front /app/public/build ./public/build
 
 RUN composer install
 
+RUN php bin/console lexik:jwt:generate-keypair
+
 RUN chown -R www-data:www-data var/ public/
 
 ENV APP_ENV=prod

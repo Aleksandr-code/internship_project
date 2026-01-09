@@ -52,6 +52,7 @@ final class InventoryController extends AbstractController
         $category = $this->em->getReference(Category::class, $data['category_id']);
 
         $inventory = new Inventory();
+        $inventory->setOwner($this->getUser());
         $inventory->setTitle($data['title']);
         $inventory->setDescription($data['description']);
         $inventory->setImageUrl($data['image_url']);

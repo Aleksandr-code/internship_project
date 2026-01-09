@@ -23,6 +23,7 @@ final class AuthController extends AbstractController
     #[Route('/api/auth/register', name: 'app_auth_register', methods: ['POST'])]
     public function register(Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
+
         $data = json_decode($request->getContent(), true);
 
         $user = new User();

@@ -1,7 +1,3 @@
-import axios from 'axios'
-
-const api = axios.create({
-    baseURL: '/api'
-})
+import {api} from './api.js';
 
 export const fetchTags = () => api.get('/tags').then(res => JSON.parse(res.data.tags))

@@ -57,6 +57,7 @@ onMounted(async () => {
 </script>
 
 <template>
+    <h3>Create inventory</h3>
     <div>
         <label for="titleInventory" class="form-label">Title</label>
         <input type="text" v-model="inventory.title" id="titleInventory" class="form-control">

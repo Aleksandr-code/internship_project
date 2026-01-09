@@ -1,8 +1,4 @@
-import axios from 'axios'
-
-const api = axios.create({
-    baseURL: '/api'
-})
+import {api} from './api.js';
 
 export const fetchInventories = () => api.get('/inventory').then(res => JSON.parse(res.data.inventories))
 export const fetchInventory = (id) => api.get(`/inventory/${id}`).then(res => JSON.parse(res.data.inventory))

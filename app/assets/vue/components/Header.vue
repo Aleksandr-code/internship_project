@@ -1,6 +1,17 @@
 <script setup>
-
 import LogoIcon from "./icons/LogoIcon.vue";
+import { useAuthStore } from "../stores/auth.js";
+import router from "../router/index.js";
+import {computed} from "vue";
+import UserIcon from "./icons/UserIcon.vue";
+const authStore = useAuthStore();
+
+const user = computed(() => authStore.user);
+const token = computed(() => authStore.token);
+const handleLogout = () => {
+    authStore.logout()
+    router.push({name:'login'})
+}
 </script>
 
 <template>
@@ -65,21 +76,32 @@ import LogoIcon from "./icons/LogoIcon.vue";
                             <div class="vr h-100 mx-2"></div>
                         </li>
                     </ul>
-                    <div class="dropdown">
+                    <div v-if="token" class="dropdown">
                         <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="#" alt="" width="32" height="32" class="rounded-circle" style="vertical-align: bottom">
+                            <!-- <img src="#" alt="" width="32" height="32" class="rounded-circle" style="vertical-align: bottom"> -->
+                            <UserIcon></UserIcon>
                         </a>
                         <ul class="dropdown-menu text-small" style="">
                             <li class="dropdown-header">
-                                <h6>Kevin Anderson</h6>
+                                <h6 v-if="user">{{authStore.user.email}}</h6>
+                                <h6 v-else>Username</h6>
                             </li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-plus-square me-2"></i>New inventory</a></li>
+                            <li>
+                                <router-link class="dropdown-item" :to="{name: 'inventory_create'}"><i class="bi bi-plus-square me-2"></i>New inventory</router-link>
+                            </li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-grid me-2"></i>Dashboard</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
+                            <li>
+                                <router-link class="dropdown-item" :to="{name: 'user_personal'}"><i class="bi bi-grid me-2"></i>Inventory list</router-link>
+                            </li>
+                            <li>
+                                <router-link class="dropdown-item" :to="{name: 'admin_dashboard'}"><i class="bi bi-person me-2"></i>Admin panel</router-link>
+                            </li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Sign out</a></li>
+                            <li><button class="dropdown-item" href="#" @click="handleLogout"><i class="bi bi-box-arrow-right me-2"></i>Log out</button></li>
                         </ul>
+                    </div>
+                    <div v-else>
+                        <router-link class="btn btn-outline-primary" :to="{name: 'login'}"><i class="bi bi-person me-2"></i>Log in</router-link>
                     </div>
                 </div>
             </div>

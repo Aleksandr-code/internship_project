@@ -14,7 +14,7 @@ onMounted(() => {
     <div class="d-flex justify-content-between mb-4" id="toolbar">
         <div class="d-flex gap-2">
             <router-link class="btn btn-outline-primary" :to="{name: 'inventory_create'}">Add Inventory</router-link>
-            <button class="btn btn-outline-warning">Edit</button>
+            <button class="btn btn-outline-primary">Edit</button>
             <button class="btn btn-outline-danger">Delete</button>
         </div>
         <div class="d-flex gap-3">

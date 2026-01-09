@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import InventoryItems from "./InventotyItems/InventoryItems.vue";
 import InventorySettings from "./InventorySettings.vue";
 import InventoryFields from "./InventoryFields.vue";
+import {useInventoryFieldsStore} from "../../stores/inventoryFields.js";
 
 defineProps({
     id: {

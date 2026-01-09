@@ -5,7 +5,12 @@ namespace App\Controller;
 use App\Entity\Category;
 use App\Entity\Inventory;
 use App\Entity\Tag;
+use App\Factory\InventoryFactory;
 use App\Repository\InventoryRepository;
+use App\Resouce\InventoryResource;
+use App\ResponseBuilder\InventoryResponseBuilder;
+use App\Service\InventoryService;
+use App\DTOValidator\InventoryDTOValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,35 +18,35 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class InventoryController extends AbstractController
 {
     public function __construct(
-        private InventoryRepository $inventoryRepository,
-        private SerializerInterface $serializer,
-        private EntityManagerInterface $em)
+        private InventoryRepository      $inventoryRepository,
+        private SerializerInterface      $serializer,
+        private EntityManagerInterface   $em,
+        private InventoryService         $inventoryService,
+        private InventoryDTOValidator    $inventoryDTOValidator,
+        private InventoryResponseBuilder $inventoryResponseBuilder,
+        private InventoryFactory         $inventoryFactory,
+    )
     {
     }
 
     #[Route('/api/inventory', name: 'app_inventory_index', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        $inventories = $this->inventoryRepository->findAll();
-        $jsonInventory = $this->serializer->serialize($inventories, 'json', ['groups' => ['inventory:main']]);
+        $inventories = $this->inventoryService->index();
+        $this->inventoryResponseBuilder->indexInventoryResponse($inventories);
 
-        return $this->json([
-            'inventories' => $jsonInventory,
-        ]);
+        return $this->inventoryResponseBuilder->indexInventoryResponse($inventories);
     }
 
     #[Route('/api/inventory/{inventory}', name: 'app_inventory_show', methods: ['GET'])]
     public function show(Inventory $inventory): JsonResponse
     {
-        $jsonInventory = $this->serializer->serialize($inventory, 'json', ['groups' => ['inventory:main']]);
-
-        return $this->json([
-            'inventory' => $jsonInventory,
-        ]);
+        return $this->inventoryResponseBuilder->showInventoryResponse($inventory);
     }
 
     #[Route('/api/inventory', name: 'app_inventory_store', methods: ['POST'])]
@@ -49,29 +54,17 @@ final class InventoryController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        $category = $this->em->getReference(Category::class, $data['category_id']);
-
-        $inventory = new Inventory();
-        $inventory->setOwner($this->getUser());
-        $inventory->setTitle($data['title']);
-        $inventory->setDescription($data['description']);
-        $inventory->setImageUrl($data['image_url']);
-        $inventory->setCategory($category);
-        foreach ($data['tags_id'] as $tagId) {
-            $tag = $this->em->getReference(Tag::class, $tagId);
-            $inventory->addTag($tag);
+        $storeInventoryInputDTO = $this->inventoryFactory->makeStoreInventoryDTO($data);
+        $res = $this->inventoryDTOValidator->validate($storeInventoryInputDTO);
+        if ($res){
+            return $res;
         }
-        $inventory->setCreatedAt(new \DateTimeImmutable($data['created_at']));
-        $inventory->setIsPublic($data['is_public']);
 
-        $this->em->persist($inventory);
-        $this->em->flush();
+        $inventory = $this->inventoryService->store($storeInventoryInputDTO);
 
-        $jsonInventory = $this->serializer->serialize($inventory, 'json', ['groups' => ['inventory:main']]);
+        $jsonResponse = $this->inventoryResponseBuilder->storeInventoryResponse($inventory);
 
-        return $this->json([
-            'inventory' => $jsonInventory,
-        ]);
+        return $jsonResponse;
     }
 
     #[Route('/api/inventory/{inventory}', name: 'app_inventory_update', methods: ['PATCH'])]
@@ -79,41 +72,28 @@ final class InventoryController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        $category = $this->em->getReference(Category::class, $data['category_id']);
-
-        $inventory->setTitle($data['title']);
-        $inventory->setDescription($data['description']);
-        $inventory->setImageUrl($data['image_url']);
-        $inventory->setCategory($category);
-        foreach ($data['tags_id'] as $tagId) {
-            $tag = $this->em->getReference(Tag::class, $tagId);
-            $inventory->addTag($tag);
+        $updateInventoryInputDTO = $this->inventoryFactory->makeUpdateInventoryDTO($data);
+        $res = $this->inventoryDTOValidator->validate($updateInventoryInputDTO);
+        if ($res){
+            return $res;
         }
-        //$inventory->setCreatedAt(new \DateTimeImmutable($data['created_at']));
-        $inventory->setIsPublic($data['is_public']);
 
-        $this->em->persist($inventory);
-        $this->em->flush();
+        $inventory = $this->inventoryService->update($inventory, $updateInventoryInputDTO);
 
-        $jsonInventory = $this->serializer->serialize($inventory, 'json', ['groups' => ['inventory:main']]);
+        $jsonResponse = $this->inventoryResponseBuilder->updateInventoryResponse($inventory);
 
-        return $this->json([
-            'inventory' => $jsonInventory,
-        ]);
+        return $jsonResponse;
     }
 
     #[Route('/api/inventory', name: 'app_inventory_destroy', methods: ['DELETE'])]
     public function destroy(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        foreach ($data['ids'] as $inventoryId) {
-            $inventory = $this->em->getReference(Inventory::class, $inventoryId);
-            $this->em->remove($inventory);
-        }
-        $this->em->flush();
 
-        return $this->json([
-            'message' => 'Inventory deleted',
-        ]);
+        $this->inventoryService->destroy($data);
+
+        $jsonResponse = $this->inventoryResponseBuilder->destroyInventoryResponse();
+
+        return $jsonResponse;
     }
 }

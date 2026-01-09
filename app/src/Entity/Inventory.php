@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: InventoryRepository::class)]
 class Inventory
@@ -18,15 +19,20 @@ class Inventory
     #[ORM\Column]
     private ?int $id = null;
     #[Groups(groups: ['inventory:main'])]
+    #[Assert\NotBlank(allowNull: false, normalizer:'trim')]
+    #[Assert\Length(min: 1, max: 255)]
     #[ORM\Column(length: 255)]
     private ?string $title = null;
     #[Groups(groups: ['inventory:main'])]
+    #[Assert\NotBlank(allowNull: false, normalizer:'trim')]
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
     #[Groups(groups: ['inventory:main'])]
+    #[Assert\NotBlank(allowNull: true, normalizer:'trim')]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageUrl = null;
     #[Groups(groups: ['inventory:main'])]
+    #[Assert\Type(\DateTimeImmutable::class)]
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
     #[Groups(groups: ['inventory:main'])]
@@ -42,6 +48,7 @@ class Inventory
     private Collection $tags;
 
     #[Groups(groups: ['inventory:main'])]
+    #[Assert\Type(type: 'integer')]
     #[ORM\Column(type: Types::SMALLINT)]
     private ?int $isPublic = null;
     #[Groups(groups: ['inventory:fields'])]

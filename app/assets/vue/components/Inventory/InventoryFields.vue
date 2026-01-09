@@ -99,7 +99,6 @@ function addField() {
         state: true
     });
 
-    // Сброс формы
     newField.name = '';
 }
 

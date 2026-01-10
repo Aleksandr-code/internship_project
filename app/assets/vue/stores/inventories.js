@@ -58,7 +58,7 @@ export const useInventoryStore = defineStore('inventories', {
             }
         },
 
-        async removeInventory(ids) {
+        async removeInventories(ids) {
             try {
                 await deleteInventories(ids)
                 this.inventories = this.inventories.filter(i => !ids.includes(i.id))

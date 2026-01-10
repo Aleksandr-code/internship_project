@@ -85,7 +85,7 @@ final class InventoryController extends AbstractController
         return $jsonResponse;
     }
 
-    #[Route('/api/inventory', name: 'app_inventory_destroy', methods: ['DELETE'])]
+    #[Route('/api/inventory/destroy', name: 'app_inventory_destroy', methods: ['POST'])]
     public function destroy(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);

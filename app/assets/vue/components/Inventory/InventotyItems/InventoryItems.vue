@@ -4,10 +4,11 @@ import ItemsForm from "./ItemsForm.vue";
 import {useInventoryItemsStore} from "../../../stores/inventoryItems.js";
 import {useInventoryFieldsStore} from "../../../stores/inventoryFields.js";
 import {useRoute} from "vue-router";
+import {useTableSelection} from "../../../composables/useTableSelection.js";
 
 const viewMode = ref('table') // 'table' | 'create' | 'edit'
 const inventoryFields = ref('')
-const items = ref([]) // данные записей
+const items = ref([])
 const currentItem = ref({})
 
 const inventoryItemsStore = useInventoryItemsStore()
@@ -85,6 +86,12 @@ const startEdit = (item) => {
     viewMode.value = 'edit'
 }
 
+const startEditByID = (id) => {
+    const item = items.value.find(item => item.id === id);
+    currentItem.value = { ...item }
+    viewMode.value = 'edit'
+}
+
 const handleAddItem = () => {
     currentItem.value.created_at = new Date()
     inventoryItemsStore.addInventoryItem(route.params.id, currentItem.value)
@@ -95,6 +102,23 @@ const handleEditItem = () => {
     inventoryItemsStore.updateInventoryItem(route.params.id, currentItem.value)
     viewMode.value = 'table'
 }
+
+const handleDeleteItems = (ids) => {
+    inventoryItemsStore.removeInventoryItems(route.params.id, ids)
+}
+
+// MultiOperation with table
+const itemIds = computed(() => items.value.map(i => i.id));
+const { selectedIds, isAllSelected, toggleAll, isActiveForSingeOperation, isActiveForMultiOperation } = useTableSelection(itemIds);
+
+const handleCheckBoxToggle = (id, event) => {
+    const checked = event.target.checked;
+    if (checked) {
+        selectedIds.value.push(id);
+    } else {
+        selectedIds.value = selectedIds.value.filter(i => i !== id);
+    }
+};
 
 onMounted(() => {
     fetchInventoryData()
@@ -107,8 +131,17 @@ onMounted(() => {
         <div class="d-flex justify-content-between mb-4" id="toolbar">
             <div class="d-flex gap-2">
                 <button class="btn btn-outline-primary" @click="startCreate">Add Item</button>
-                <button class="btn btn-outline-warning">Edit</button>
-                <button class="btn btn-outline-danger">Delete</button>
+                <button
+                    class="btn btn-outline-primary"
+                    :disabled="!isActiveForSingeOperation"
+                    @click="startEditByID(selectedIds[0])">
+                    Edit
+                </button>
+                <button class="btn btn-outline-danger"
+                        :disabled="!isActiveForMultiOperation"
+                        @click="handleDeleteItems(selectedIds)">
+                    Delete
+                </button>
             </div>
             <div class="d-flex gap-3">
                 <input class="form-control" type="search" placeholder="Search by table">
@@ -117,19 +150,31 @@ onMounted(() => {
         <div v-if="columns.length" class="table-responsive">
             <table class="table">
                 <thead class="table-light">
-                    <th v-for="col in columns" :key="col.key">{{ col.label }}</th>
+                    <tr>
+                        <th>
+                            <input type="checkbox" :checked="isAllSelected" @change="toggleAll">
+                        </th>
+                        <th v-for="col in columns" :key="col.key">{{ col.label }}</th>
+                        <th></th>
+                    </tr>
                 </thead>
                 <tbody>
-                <tr v-for="(item, index) in items" :key="index">
-                    <td v-for="col in columns" :key="col.key">
-                        {{ formatValue(item[col.valueKey], col.type) }}
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary" @click="startEdit(item)">
-                            Edit
-                        </button>
-                    </td>
-                </tr>
+                    <tr v-for="(item, index) in items" :key="index">
+                        <td>
+                            <input
+                                type="checkbox"
+                                :checked="selectedIds.includes(item.id)"
+                                @change="handleCheckBoxToggle(item.id, $event)">
+                        </td>
+                        <td v-for="col in columns" :key="col.key">
+                            {{ formatValue(item[col.valueKey], col.type) }}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" @click="startEdit(item)">
+                                Edit
+                            </button>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>

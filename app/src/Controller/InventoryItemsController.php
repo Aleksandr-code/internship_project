@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Inventory;
 use App\Entity\InventoryItem;
 use Doctrine\ORM\EntityManagerInterface;
+use JetBrains\PhpStorm\NoReturn;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -105,7 +106,7 @@ final class InventoryItemsController extends AbstractController
         ]);
     }
 
-    #[Route('/api/inventory/{inventory}/items', name: 'app_inventory_items_destroy', methods: ['DELETE'])]
+    #[Route('/api/inventory/{inventory}/items/destroy', name: 'app_inventory_items_destroy', methods: ['POST'])]
     public function destroy(Inventory $inventory, Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);

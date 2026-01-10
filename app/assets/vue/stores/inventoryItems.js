@@ -49,9 +49,9 @@ export const useInventoryItemsStore = defineStore('inventoryItems', {
             }
         },
 
-        async removeInventoryItems(ids) {
+        async removeInventoryItems(idInventory, ids) {
             try {
-                await deleteInventoryItems(ids)
+                await deleteInventoryItems(idInventory, ids)
                 this.inventoryItems = this.inventoryItems.filter(i => !ids.includes(i.id))
             } catch (err) {
                 this.error = err.message

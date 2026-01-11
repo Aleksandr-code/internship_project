@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\InventoryItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -11,33 +12,27 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class InventoryItemRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(private EntityManagerInterface $em, ManagerRegistry $registry)
     {
         parent::__construct($registry, InventoryItem::class);
     }
 
-    //    /**
-    //     * @return InventoryItem[] Returns an array of InventoryItem objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('i')
-    //            ->andWhere('i.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('i.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function save(InventoryItem $inventoryItem, $isFlush = true):InventoryItem
+    {
+        $this->em->persist($inventoryItem);
 
-    //    public function findOneBySomeField($value): ?InventoryItem
-    //    {
-    //        return $this->createQueryBuilder('i')
-    //            ->andWhere('i.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        if ($isFlush){
+            $this->em->flush();
+        }
+        return $inventoryItem;
+    }
+
+    public function destroy(InventoryItem $inventoryItem, $isFlush = true):void
+    {
+        $this->em->remove($inventoryItem);
+
+        if ($isFlush){
+            $this->em->flush();
+        }
+    }
 }

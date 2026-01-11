@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\DTOValidator;
 
-use App\DTO\input\Inventory\StoreInventoryInputDTO;
-use App\DTO\input\Inventory\UpdateInventoryInputDTO;
+use App\DTO\input\InputDTO;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class InventoryDTOValidator
+class DTOValidator
 {
     public function __construct(
         private ValidatorInterface $validator
@@ -17,9 +16,9 @@ class InventoryDTOValidator
     {
     }
 
-    public function validate(StoreInventoryInputDTO|UpdateInventoryInputDTO $inventory):JsonResponse|null
+    public function validate(InputDTO $inputDTO):JsonResponse|null
     {
-        $errors = $this->validator->validate($inventory);
+        $errors = $this->validator->validate($inputDTO);
         if (count($errors) > 0) {
             $messages = [];
             foreach ($errors as $error) {

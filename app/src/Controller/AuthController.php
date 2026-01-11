@@ -10,12 +10,14 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
 final class AuthController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private JWTTokenManagerInterface $JWTTokenManager
+        private JWTTokenManagerInterface $JWTTokenManager,
+        private SerializerInterface $serializer,
     )
     {
     }
@@ -34,10 +36,12 @@ final class AuthController extends AbstractController
         $this->em->persist($user);
         $this->em->flush();
 
-        return $this->json([
-            'user' => $user,
-            'token' => $this->JWTTokenManager->create($user),
-        ]);
+        $userSerialize = $this->serializer->serialize(
+            ['user' => $user, 'token' => $this->JWTTokenManager->create($user)],
+            'json',
+            ['groups' => ['user:info']]);
+
+        return new JsonResponse($userSerialize, 200, [], true);
     }
 
     #[Route('/api/auth/me', name: 'app_auth_me', methods: ['POST'])]
@@ -45,8 +49,8 @@ final class AuthController extends AbstractController
     {
         $user = $this->getUser();
 
-        return $this->json([
-            'user' => $user,
-        ]);
+        $userSerialize = $this->serializer->serialize($user, 'json', ['groups' => ['user:info']]);
+
+        return new JsonResponse($userSerialize, 200, [], true);
     }
 }

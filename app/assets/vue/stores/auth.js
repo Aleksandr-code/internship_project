@@ -34,8 +34,9 @@ export const useAuthStore = defineStore('auth', {
             this.loading = true;
             this.error = null;
             try {
-                const { token } = await register(email, password);
+                const { user, token } = await register(email, password);
                 this.setToken(token);
+                this.user = user
             } catch (err) {
                 this.error = err.response?.data?.message || 'Registration failed';
                 throw err;
@@ -52,7 +53,8 @@ export const useAuthStore = defineStore('auth', {
         async fetchUser() {
             try {
                 const data = await me()
-                this.user = data.user;
+                console.log(data)
+                this.user = data;
             } catch (error) {
                 console.log('Failed to fetch user', error);
             }

@@ -22,9 +22,10 @@ class InventoryFactory
     public function makeInventory(StoreInventoryInputDTO $storeInventoryInputDTO):Inventory
     {
         $category = $this->em->getReference(Category::class, $storeInventoryInputDTO->categoryId);
+        $user = $this->security->getUser();
 
         $inventory = new Inventory();
-        $inventory->setOwner($this->security->getUser());
+        $inventory->setOwner($user);
         $inventory->setTitle($storeInventoryInputDTO->title);
         $inventory->setDescription($storeInventoryInputDTO->description);
         $inventory->setImageUrl($storeInventoryInputDTO->imageUrl);
@@ -42,8 +43,9 @@ class InventoryFactory
     public function editInventory(Inventory $inventory, UpdateInventoryInputDTO $updateInventoryInputDTO):Inventory
     {
         $category = $this->em->getReference(Category::class, $updateInventoryInputDTO->categoryId);
+        $user = $this->security->getUser();
 
-        $inventory->setOwner($this->security->getUser());
+        $inventory->setOwner($user);
         $inventory->setTitle($updateInventoryInputDTO->title);
         $inventory->setDescription($updateInventoryInputDTO->description);
         $inventory->setImageUrl($updateInventoryInputDTO->imageUrl);

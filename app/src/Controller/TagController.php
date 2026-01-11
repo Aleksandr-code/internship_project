@@ -2,22 +2,29 @@
 
 namespace App\Controller;
 
-use App\Repository\TagRepository;
+use App\ResponseBuilder\TagResponseBuilder;
+use App\Service\TagService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Serializer\SerializerInterface;
 
 final class TagController extends AbstractController
 {
-    #[Route('/api/tags', name: 'app_tag_index', methods: ['GET'])]
-    public function index(TagRepository $tagRepository, SerializerInterface $serializer): JsonResponse
+    public function __construct(
+        private TagService  $tagService,
+        private TagResponseBuilder $tagResponseBuilder
+    )
     {
-        $tags = $tagRepository->findAll();
-        $jsonTags = $serializer->serialize($tags, 'json', ['groups' => ['tag:list']]);
+    }
 
-        return $this->json([
-            'tags' => $jsonTags,
-        ]);
+    #[Route('/api/tags', name: 'app_tag_index', methods: ['GET'])]
+    public function index(Request $request): JsonResponse
+    {
+        $query = $request->query->all();
+
+        $tags = $this->tagService->index($query);
+
+        return $this->tagResponseBuilder->indexTagResponse($tags);
     }
 }

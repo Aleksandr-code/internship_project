@@ -10,20 +10,26 @@ use App\Entity\Inventory;
 use App\Factory\InventoryFactory;
 use App\Repository\InventoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class InventoryService
 {
     public function __construct(
         private InventoryRepository $inventoryRepository,
         private InventoryFactory $inventoryFactory,
-        private EntityManagerInterface $em
+        private EntityManagerInterface $em,
+        private Security $security
     )
     {
     }
 
-    public function index():array
+    public function index(array $query):array
     {
-        return $this->inventoryRepository->findAll();
+        $user = $this->security->getUser();
+        $userID = $user->getId();
+        $limit = $query['limit'] ?? 10;
+
+        return $this->inventoryRepository->findByQuery($userID, $limit);
     }
 
     public function store(StoreInventoryInputDTO $storeInventoryInputDTO): Inventory
@@ -49,4 +55,13 @@ class InventoryService
         }
     }
 
+    public function latest():array
+    {
+        return $this->inventoryRepository->latest();
+    }
+
+    public function topByCountItems():array
+    {
+        return $this->inventoryRepository->topByCountItems();
+    }
 }

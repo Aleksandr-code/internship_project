@@ -38,6 +38,49 @@ class InventoryRepository extends ServiceEntityRepository
         }
     }
 
+    public function findByQuery(int $userID, int $limit): array
+    {
+        $qb = $this->createQueryBuilder('i')
+            ->where('i.owner = :user')
+            ->setParameter('user', $userID);
+
+        if (isset($title)){
+            $qb->andWhere('i.title LIKE :title')
+                ->setParameter('title', '%' . $title . '%');
+        }
+
+        $query = $qb->setMaxResults($limit)->getQuery();
+
+        return $query->getResult();
+    }
+
+    public function latest(int $limit = 5):array
+    {
+        return $this->createQueryBuilder('i')
+            ->select(
+                'i.title AS title',
+                'i.description AS description',
+                'u.email AS creator')
+            ->leftJoin('i.owner', 'u')
+            ->orderBy('i.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function topByCountItems(int $limit = 5):array
+    {
+        return $this->createQueryBuilder('i')
+            ->select('i.title AS inventory, COUNT(item.id) AS itemsCount')
+            ->leftJoin('i.inventoryItems', 'item')
+            ->groupBy('i.id')
+            ->orderBy('itemsCount', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+
 
 
 }

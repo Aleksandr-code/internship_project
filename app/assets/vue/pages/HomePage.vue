@@ -6,7 +6,6 @@ import TagCloud from "../components/HomePage/TagCloud.vue";
 </script>
 
 <template>
-    <div>Home page</div>
     <InventoryLatest></InventoryLatest>
     <InventoryPopular></InventoryPopular>
     <TagCloud></TagCloud>

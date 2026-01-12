@@ -5,3 +5,5 @@ export const fetchInventory = (id) => api.get(`/inventory/${id}`).then(res => re
 export const createInventory = (inventory) => api.post('/inventory', inventory).then(res => res.data)
 export const updateInventory = (id, inventory) => api.patch(`/inventory/${id}`, inventory).then(res => res.data)
 export const deleteInventories = (ids) => api.post(`/inventory/destroy`, {ids: ids}).then(res => res.data)
+export const fetchLatestInventories = () => api.get(`/inventory/latest`).then(res => res.data)
+export const fetchTopInventories = () => api.get(`/inventory/top`).then(res => res.data)

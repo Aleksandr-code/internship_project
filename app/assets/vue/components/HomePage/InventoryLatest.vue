@@ -1,5 +1,21 @@
 <script setup>
 
+import {ref, onMounted} from "vue";
+import {fetchLatestInventories} from "../../api/inventories.js";
+
+const latestInventories = ref([]);
+async function loadData(){
+    try {
+        latestInventories.value = await fetchLatestInventories()
+    } catch (e){
+        console.log(e)
+    }
+}
+
+onMounted(() => {
+    loadData()
+})
+
 </script>
 
 <template>
@@ -16,16 +32,16 @@
                     </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
+                <tr v-for="(inventory,index) in latestInventories" :key="index">
+                    <th scope="row">{{ index + 1 }}</th>
+                    <td>{{ inventory.title }}</td>
+                    <td>{{ inventory.description }}</td>
+                    <td>{{ inventory.creator }}</td>
                 </tr>
                 </tbody>
             </table>
         </div>
-        <small class="d-block text-end mt-3">
+        <small class="d-block text-end mt-3 d-none">
             <a href="#">All inventories</a>
         </small>
     </div>

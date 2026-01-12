@@ -12,7 +12,10 @@ class TagService
 
     public function index(array $query):array
     {
-        $tags = $this->tagRepository->findAll();
+        $title = $query['title'] ?? null;
+        $limit = $query['limit'] ?? 10;
+
+        $tags = $this->tagRepository->findByQuery($title, $limit);
         return $tags;
     }
 }

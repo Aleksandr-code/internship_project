@@ -24,14 +24,16 @@ final class InventoryController extends AbstractController
     }
 
     #[Route('/api/inventory', name: 'app_inventory_index', methods: ['GET'])]
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $inventories = $this->inventoryService->index();
+        $query = $request->query->all();
+
+        $inventories = $this->inventoryService->index($query);
 
         return $this->inventoryResponseBuilder->indexInventoryResponse($inventories);
     }
 
-    #[Route('/api/inventory/{inventory}', name: 'app_inventory_show', methods: ['GET'])]
+    #[Route('/api/inventory/{inventory}', name: 'app_inventory_show', requirements: ['inventory' => '\d+'], methods: ['GET'])]
     public function show(Inventory $inventory): JsonResponse
     {
         return $this->inventoryResponseBuilder->showInventoryResponse($inventory);
@@ -77,5 +79,21 @@ final class InventoryController extends AbstractController
         $this->inventoryService->destroy($data);
 
         return $this->inventoryResponseBuilder->destroyInventoryResponse();
+    }
+
+    #[Route('/api/inventory/latest', name: 'app_inventory_latest', methods: ['GET'])]
+    public function latest(): JsonResponse
+    {
+        $inventories = $this->inventoryService->latest();
+
+        return new JsonResponse($inventories, 200, [], false);
+    }
+
+    #[Route('/api/inventory/top', name: 'app_inventory_top', methods: ['GET'])]
+    public function topByCountItems(): JsonResponse
+    {
+        $inventories = $this->inventoryService->topByCountItems();
+
+        return new JsonResponse($inventories, 200, [], false);
     }
 }

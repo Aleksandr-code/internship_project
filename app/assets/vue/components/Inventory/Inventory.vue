@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import InventoryItems from "./InventotyItems/InventoryItems.vue";
 import InventorySettings from "./InventorySettings.vue";
 import InventoryFields from "./InventoryFields.vue";
+import InventoryItemsCustomID from "./InventoryItemsCustomID.vue";
 import {useInventoryFieldsStore} from "../../stores/inventoryFields.js";
 
 defineProps({
@@ -33,7 +34,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <h3 class="mb-3">New Inventory</h3>
+    <h4 class="mb-3">Inventory page</h4>
     <ul class="nav nav-tabs">
         <li class="nav-item">
             <a class="nav-link" :class="{ active: activeTab === 1 }" data-toggle="tab" href="#items" @click="setActiveTab(1)">Items</a>
@@ -71,7 +72,7 @@ onMounted(() => {
             <InventorySettings></InventorySettings>
         </div>
         <div class="tab-pane fade" :class="{ show: activeTab === 4, active:  activeTab === 4}" id="custom_id">
-            Custom id
+            <InventoryItemsCustomID></InventoryItemsCustomID>
         </div>
         <div class="tab-pane fade" :class="{ show: activeTab === 5, active:  activeTab === 5}" id="fields">
             <InventoryFields></InventoryFields>

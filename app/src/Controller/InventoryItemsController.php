@@ -25,9 +25,11 @@ final class InventoryItemsController extends AbstractController
     }
 
     #[Route('/api/inventory/{inventory}/items', name: 'app_inventory_items_index', methods: ['GET'])]
-    public function index(Inventory $inventory): JsonResponse
+    public function index(Inventory $inventory, Request $request): JsonResponse
     {
-        $inventoryItems = $this->inventoryItemsService->index($inventory);
+        $query = $request->query->all();
+
+        $inventoryItems = $this->inventoryItemsService->index($inventory, $query);
 
         return $this->inventoryItemsResponseBuilder->indexInventoryItemsResponse($inventoryItems);
     }

@@ -17,7 +17,7 @@ class InventoryItemsResource
         return $this->serializer->serialize($inventoryItem, 'json', ['groups' => ['inventory:items']]);
     }
 
-    public function inventoryItemsCollection(Collection $inventoryItems):string
+    public function inventoryItemsCollection(array $inventoryItems):string
     {
         return $this->serializer->serialize($inventoryItems, 'json', ['groups' => ['inventory:items']]);
     }

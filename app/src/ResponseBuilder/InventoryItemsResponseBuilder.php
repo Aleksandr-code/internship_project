@@ -13,7 +13,7 @@ class InventoryItemsResponseBuilder
     {
     }
 
-    public function indexInventoryItemsResponse(Collection $inventoryItems, $status = 200, $headers = [], $isJson = true):JsonResponse
+    public function indexInventoryItemsResponse(array $inventoryItems, $status = 200, $headers = [], $isJson = true):JsonResponse
     {
         $inventoryItemsResource = $this->inventoryItemsResource->inventoryItemsCollection($inventoryItems);
         return new JsonResponse($inventoryItemsResource, $status, $headers, $isJson);

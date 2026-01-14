@@ -27,9 +27,14 @@ class InventoryService
     {
         $user = $this->security->getUser();
         $userID = $user->getId();
-        $limit = $query['limit'] ?? 10;
+        $title = $query['title'] ?? null;
+        $limit = intval($query['limit'] ?? 5);
+        $page = intval($query['page'] ?? 1);
+        $sortBy = $query['sortBy'] ?? 'createdAt';
+        $sortDirection = $query['sortDirection'] ?? 'ASC';
+        $offset = ($page - 1) * $limit;
 
-        return $this->inventoryRepository->findByQuery($userID, $limit);
+        return $this->inventoryRepository->findByQuery($userID, $title, $limit, $offset, $sortBy, $sortDirection);
     }
 
     public function store(StoreInventoryInputDTO $storeInventoryInputDTO): Inventory

@@ -7,8 +7,6 @@ import {useRoute} from "vue-router";
 import {useTableSelection} from "../../../composables/useTableSelection.js";
 
 const viewMode = ref('table') // 'table' | 'create' | 'edit'
-const inventoryFields = ref('')
-const items = ref([])
 const currentItem = ref({})
 
 const inventoryItemsStore = useInventoryItemsStore()
@@ -17,15 +15,16 @@ const route = useRoute()
 
 const fetchInventoryData = async () => {
     await inventoryFieldsStore.loadInventoryFields(route.params.id)
-    inventoryFields.value = inventoryFieldsStore.inventoryFields
 
-    await inventoryItemsStore.loadInventoryItems(route.params.id)
-    items.value = inventoryItemsStore.inventoryItems
+    await inventoryItemsStore.loadInventoryItems(
+        {idInventory: route.params.id,
+                                search:null,
+                                page: 1})
 }
 
 const columns = computed(() => {
     try {
-        const config = inventoryFields.value
+        const config = inventoryFieldsStore.inventoryFields
         const cols = []
         const types = ['String', 'Text', 'Int', 'File', 'Bool']
 
@@ -87,7 +86,7 @@ const startEdit = (item) => {
 }
 
 const startEditByID = (id) => {
-    const item = items.value.find(item => item.id === id);
+    const item = inventoryItemsStore.inventoryItems.find(item => item.id === id);
     currentItem.value = { ...item }
     viewMode.value = 'edit'
 }
@@ -95,6 +94,7 @@ const startEditByID = (id) => {
 const handleAddItem = () => {
     currentItem.value.created_at = new Date()
     inventoryItemsStore.addInventoryItem(route.params.id, currentItem.value)
+    loadData(inventoryItemsStore.pagination.page)
     viewMode.value = 'table'
 }
 
@@ -108,7 +108,7 @@ const handleDeleteItems = (ids) => {
 }
 
 // MultiOperation with table
-const itemIds = computed(() => items.value.map(i => i.id));
+const itemIds = computed(() => inventoryItemsStore.inventoryItems.map(i => i.id));
 const { selectedIds, isAllSelected, toggleAll, isActiveForSingeOperation, isActiveForMultiOperation } = useTableSelection(itemIds);
 
 const handleCheckBoxToggle = (id, event) => {
@@ -119,6 +119,29 @@ const handleCheckBoxToggle = (id, event) => {
         selectedIds.value = selectedIds.value.filter(i => i !== id);
     }
 };
+
+// search
+let debounceTimer = null
+const searchInput = ref('')
+
+const loadData = async (page = 1) => {
+    await inventoryItemsStore.loadInventoryItems({
+        idInventory: route.params.id,
+        search: searchInput.value || null,
+        page,
+    })
+}
+const searchChange = () => {
+    clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(() => {
+        loadData(1)
+    }, 300)
+}
+
+const changePage = (page) => {
+    inventoryItemsStore.pagination.page = page
+    loadData(page)
+}
 
 onMounted(() => {
     fetchInventoryData()
@@ -144,7 +167,7 @@ onMounted(() => {
                 </button>
             </div>
             <div class="d-flex gap-3">
-                <input class="form-control" type="search" placeholder="Search by table">
+                <input v-model="searchInput" @input="searchChange" class="form-control" type="search" placeholder="Search by table">
             </div>
         </div>
         <div v-if="columns.length" class="table-responsive">
@@ -159,7 +182,7 @@ onMounted(() => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(item, index) in items" :key="index">
+                    <tr v-for="(item, index) in inventoryItemsStore.inventoryItems" :key="index">
                         <td>
                             <input
                                 type="checkbox"
@@ -178,14 +201,33 @@ onMounted(() => {
                 </tbody>
             </table>
         </div>
-
         <p v-else>No active fields</p>
+        <div v-if="inventoryItemsStore.pagination.pages > 1" class="pagination my-3 mx-3 d-flex justify-content-between">
+            <div>
+                <button
+                    class="btn btn-outline-primary"
+                    :disabled="inventoryItemsStore.pagination.page <= 1"
+                    @click="changePage(inventoryItemsStore.pagination.page - 1)">
+                    Back
+                </button>
+                <span class="mx-2">Page {{ inventoryItemsStore.pagination.page }} of {{ inventoryItemsStore.pagination.pages }}</span>
+                <button
+                    class="btn btn-outline-primary"
+                    :disabled="inventoryItemsStore.pagination.page >= inventoryItemsStore.pagination.pages"
+                    @click="changePage(inventoryItemsStore.pagination.page + 1)">
+                    Next
+                </button>
+            </div>
+            <div>
+                Total {{inventoryItemsStore.pagination.total}}
+            </div>
+        </div>
     </div>
 
     <div v-else-if="viewMode === 'create'" class="form-view">
         <h2>New Item</h2>
         <ItemsForm v-model="currentItem"
-                   :inventory-fields="inventoryFields"
+                   :inventory-fields="inventoryFieldsStore.inventoryFields"
                    @submit="handleAddItem"
                    @cancel="viewMode = 'table'">
         </ItemsForm>
@@ -194,7 +236,7 @@ onMounted(() => {
     <div v-else-if="viewMode === 'edit'" class="form-view">
         <h2>Edit item</h2>
         <ItemsForm v-model="currentItem"
-                   :inventory-fields="inventoryFields"
+                   :inventory-fields="inventoryFieldsStore.inventoryFields"
                    @submit="handleEditItem"
                    @cancel="viewMode = 'table'">
         </ItemsForm>

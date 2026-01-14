@@ -128,6 +128,7 @@ function saveFields() {
 
     console.log('Saving:', payload);
     inventoryFieldsStore.saveInventoryFields(route.params.id, payload)
+    inventoryFieldsStore.loadInventoryFields(route.params.id)
 }
 
 </script>

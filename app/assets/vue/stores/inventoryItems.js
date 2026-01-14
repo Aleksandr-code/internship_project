@@ -5,20 +5,32 @@ import {
     fetchInventoryItems,
     updateInventoryItem
 } from "../api/inventoryItems.js";
-import {deleteInventories} from "../api/inventories.js";
 
 export const useInventoryItemsStore = defineStore('inventoryItems', {
     state: () => ({
         inventoryItems: [],
         loading: false,
-        error: null
+        error: null,
+        pagination: {
+            page: 1,
+            total: 0,
+            pages: 0,
+        },
     }),
 
     actions:{
-        async loadInventoryItems(idInventory) {
+        async loadInventoryItems({idInventory = null, search = null,page = 1}) {
             this.loading = true
             try {
-                this.inventoryItems = await fetchInventoryItems(idInventory)
+                const params = {}
+                if (search !== null && search.trim() !== '') {
+                    params.search = search.trim()
+                }
+                params.page = page
+                const {inventoryItems, total , pages} = await fetchInventoryItems(idInventory, params)
+                this.inventoryItems = inventoryItems
+                this.pagination.total = total
+                this.pagination.pages = pages
             } catch (err) {
                 this.error = err.message
             } finally {

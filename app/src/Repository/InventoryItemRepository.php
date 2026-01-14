@@ -35,4 +35,34 @@ class InventoryItemRepository extends ServiceEntityRepository
             $this->em->flush();
         }
     }
+
+    public function findByQuery(int $inventoryId, ?string $search, int $limit, int $offset): array
+    {
+
+        $qb = $this->createQueryBuilder('i')
+            ->where('i.inventory = :inventory')
+            ->setParameter('inventory', $inventoryId);
+
+        if (isset($search) && strlen(trim($search)) > 0){
+            $qb->andWhere('i.string1Value LIKE :search OR i.string2Value LIKE :search OR i.string3Value LIKE :search
+                OR i.text1Value LIKE :search OR i.text2Value LIKE :search OR i.text3Value LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        $countQb = clone $qb;
+        $countQb->select('COUNT(i.id)');
+        $total = $countQb->getQuery()->getSingleScalarResult();
+
+        $inventoryItems = $qb->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+
+        return [
+            'inventoryItems' => $inventoryItems,
+            'total' => $total,
+            'pages' => ceil($total / $limit)
+        ];
+    }
 }

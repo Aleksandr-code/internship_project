@@ -38,20 +38,38 @@ class InventoryRepository extends ServiceEntityRepository
         }
     }
 
-    public function findByQuery(int $userID, int $limit): array
+    public function findByQuery(int $userID, ?string $title, int $limit, int $offset, string $sortBy = 'createdAt', string $sortDirection = 'ASC'): array
     {
+        $sortMap = [
+            'createdAt' => 'i.createdAt',
+            'title' => 'i.title',
+        ];
+
         $qb = $this->createQueryBuilder('i')
             ->where('i.owner = :user')
             ->setParameter('user', $userID);
 
-        if (isset($title)){
+        if (isset($title) && strlen(trim($title)) > 0){
             $qb->andWhere('i.title LIKE :title')
                 ->setParameter('title', '%' . $title . '%');
         }
 
-        $query = $qb->setMaxResults($limit)->getQuery();
+        $countQb = clone $qb;
+        $countQb->select('COUNT(i.id)');
+        $total = $countQb->getQuery()->getSingleScalarResult();
 
-        return $query->getResult();
+        $inventories = $qb->orderBy($sortMap[$sortBy], $sortDirection)
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+
+        return [
+            'inventories' => $inventories,
+            'total' => $total,
+            'pages' => ceil($total / $limit)
+        ];
     }
 
     public function latest(int $limit = 5):array
@@ -79,8 +97,6 @@ class InventoryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-
-
 
 
 }

@@ -14,7 +14,7 @@ class UpdateInventoryInputDTO implements InputDTO
     #[Assert\NotBlank(allowNull: false, normalizer:'trim')]
     public ?string $description = null;
 
-    #[Assert\NotBlank(allowNull: true, normalizer:'trim')]
+    #[Assert\Url]
     public ?string $imageUrl = null;
 
     #[Assert\Type(\DateTimeImmutable::class)]

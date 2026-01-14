@@ -21,9 +21,15 @@ class InventoryItemsService
     {
     }
 
-    public function index(Inventory $inventory): Collection
+    public function index(Inventory $inventory, array $query): array
     {
-        return $inventory->getInventoryItems();
+        $inventoryId = $inventory->getId();
+        $search = $query['search'] ?? null;
+        $limit = intval($query['limit'] ?? 5);
+        $page = intval($query['page'] ?? 1);
+        $offset = ($page - 1) * $limit;
+
+        return $this->inventoryItemRepository->findByQuery($inventoryId, $search, $limit, $offset);
     }
 
     public function store(Inventory $inventory, StoreInventoryItemInputDTO $storeInventoryItemInputDTO):InventoryItem

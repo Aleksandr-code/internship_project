@@ -61,10 +61,12 @@ onMounted(async () => {
     <div>
         <label for="titleInventory" class="form-label">Title</label>
         <input type="text" v-model="inventory.title" id="titleInventory" class="form-control">
+        <p class="text-danger" v-if="storeInventory.error?.title">{{ storeInventory.error.title[0] }}</p>
     </div>
     <div>
         <label for="descriptionInventory" class="form-label">Description</label>
         <textarea v-model="inventory.description" class="form-control" id="descriptionInventory"></textarea>
+        <p class="text-danger" v-if="storeInventory.error?.description">{{ storeInventory.error.description[0] }}</p>
     </div>
     <div>
         <label for="categoryInventory" class="form-label">Category</label>
@@ -84,6 +86,7 @@ onMounted(async () => {
             <input v-model="inventory.image_url" type="url" class="form-control" id="imgInventory" placeholder="https://site.com/image.jpg">
             <label class="input-group-text" for="imgInventory">Upload</label>
         </div>
+        <p class="text-danger" v-if="storeInventory.error?.imageUrl">{{ storeInventory.error.imageUrl[0] }}</p>
     </div>
     <button class="btn btn-primary" @click="submitInventory">Create</button>
 </template>

@@ -6,14 +6,39 @@ export const useInventoryStore = defineStore('inventories', {
         inventories: [],
         currentInventory: null,
         loading: false,
-        error: null
+        error: null,
+        pagination: {
+            page: 1,
+            limit: 5,
+            total: 0,
+            pages: 0,
+        },
+        sorting: {
+            field: 'createdAt',
+            direction: 'DESC',
+        },
     }),
 
     actions:{
-        async loadInventories() {
+        async loadInventories({ title = null, page = 1, limit = 5, sortField = null, sortDirection = null}) {
             this.loading = true
+            const field = sortField ?? this.sorting.field
+            const direction = sortDirection ?? this.sorting.direction
+
             try {
-                this.inventories = await fetchInventories()
+                const params = {}
+                if (title !== null && title.trim() !== '') {
+                    params.title = title.trim()
+                }
+                params.page = page
+                params.limit = limit
+                params.sortBy = field
+                params.sortDirection = direction
+
+                const {inventories, total , pages} = await fetchInventories(params)
+                this.inventories = inventories
+                this.pagination.total = total
+                this.pagination.pages = pages
             } catch (err) {
                 this.error = err.message
             } finally {
@@ -33,17 +58,19 @@ export const useInventoryStore = defineStore('inventories', {
         },
 
         async addInventory(inventory) {
+            this.error = null
             try {
                 const newInventory = await createInventory(inventory)
                 this.inventories.push(newInventory)
                 return newInventory
             } catch (err) {
-                this.error = err.message
+                this.error = err.response.data
                 throw err
             }
         },
 
         async editInventory(id, inventory) {
+            this.error = null
             try {
                 const updated = await updateInventory(id, inventory)
                 const index = this.inventories.findIndex(i => i.id === id)
@@ -53,7 +80,7 @@ export const useInventoryStore = defineStore('inventories', {
                 }
                 return updated
             } catch (err) {
-                this.error = err.message
+                this.error = err.response.data
                 throw err
             }
         },
@@ -66,6 +93,11 @@ export const useInventoryStore = defineStore('inventories', {
                 this.error = err.message
                 throw err
             }
+        },
+
+        setSorting(field, direction) {
+            this.sorting.field = field
+            this.sorting.direction = direction
         }
     }
 })

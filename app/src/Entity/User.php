@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -15,6 +16,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    #[Groups(groups: ['user:info'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -41,6 +43,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\OneToMany(targetEntity: Inventory::class, mappedBy: 'owner')]
     private Collection $inventories;
+
+    #[Groups(groups: ['user:info'])]
+    #[ORM\Column(type: Types::SMALLINT, nullable: true)]
+    private ?int $isBlocked = 0;
 
     public function __construct()
     {
@@ -154,6 +160,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $inventory->setOwner(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getIsBlocked(): ?int
+    {
+        return $this->isBlocked;
+    }
+
+    public function setIsBlocked(?int $isBlocked): static
+    {
+        $this->isBlocked = $isBlocked;
 
         return $this;
     }

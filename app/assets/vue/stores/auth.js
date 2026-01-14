@@ -53,7 +53,6 @@ export const useAuthStore = defineStore('auth', {
         async fetchUser() {
             try {
                 const data = await me()
-                console.log(data)
                 this.user = data;
             } catch (error) {
                 console.log('Failed to fetch user', error);

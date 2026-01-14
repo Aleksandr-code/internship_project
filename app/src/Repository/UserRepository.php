@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -31,6 +32,27 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $user->setPassword($newHashedPassword);
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
+    }
+
+    public function changeBlockedStatus(array $userIds, int $isBlock = 0): int
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->update(User::class, 'u')
+            ->set('u.isBlocked', ':blocked')
+            ->where('u.id IN (:ids)')
+            ->setParameter('blocked', $isBlock)
+            ->setParameter('ids', $userIds);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function destroy(User $user, $isFlush = true):void
+    {
+        $this->getEntityManager()->remove($user);
+
+        if ($isFlush){
+            $this->getEntityManager()->flush();
+        }
     }
 
     //    /**

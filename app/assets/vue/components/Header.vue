@@ -94,6 +94,9 @@ const handleLogout = () => {
                                 <router-link class="dropdown-item" :to="{name: 'user_personal'}"><i class="bi bi-grid me-2"></i>Inventory list</router-link>
                             </li>
                             <li>
+                                <router-link class="dropdown-item" :to="{name: 'user_integration_salesforce'}"><i class="bi bi-share me-2"></i>Salesforce</router-link>
+                            </li>
+                            <li>
                                 <router-link class="dropdown-item" :to="{name: 'admin_dashboard'}"><i class="bi bi-person me-2"></i>Admin panel</router-link>
                             </li>
                             <li><hr class="dropdown-divider"></li>

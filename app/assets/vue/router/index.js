@@ -7,6 +7,7 @@ const routes = [
     {path:'/login', name:'login', component: () => import('../pages/LoginPage.vue'), meta: { guestOnly: true }},
     {path:'/register', name:'register', component: ()  => import('../pages/RegisterPage.vue'), meta: { guestOnly: true }},
     {path:'/user', name: 'user_personal', component: () => import('../pages/PersonalPage.vue'), meta: { requiresAuth: true }},
+    {path:'/user/integration/salesforce', name: 'user_integration_salesforce', component: () => import('../pages/SalesforcePage.vue'), meta: { requiresAuth: true }},
     {path:'/admin/dashboard', name: 'admin_dashboard', component: () => import('../pages/AdminDashboardPage.vue'), meta: { requiresAuth: true}},
     {path:'/inventory/:id', name:'inventory_show', component: () => import('../components/Inventory/Inventory.vue'), meta: { requiresAuth: true }, props: true},
     {path:'/inventory/create', name:'inventory_create', component: () => import('../components/Inventory/InventoryCreate.vue'), meta: { requiresAuth: true }},

@@ -6,6 +6,7 @@ import InventorySettings from "./InventorySettings.vue";
 import InventoryFields from "./InventoryFields.vue";
 import InventoryItemsCustomID from "./InventoryItemsCustomID.vue";
 import {useInventoryFieldsStore} from "../../stores/inventoryFields.js";
+import InventoryAccess from "./InventoryAccess.vue";
 
 defineProps({
     id: {
@@ -78,7 +79,7 @@ onMounted(() => {
             <InventoryFields></InventoryFields>
         </div>
         <div class="tab-pane fade" :class="{ show: activeTab === 6, active:  activeTab === 6}" id="access">
-            Access
+            <InventoryAccess></InventoryAccess>
         </div>
         <div class="tab-pane fade" :class="{ show: activeTab === 7, active:  activeTab === 7}" id="stats">
             Stats

@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\Types\This;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -16,12 +17,14 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    public const ROLE_ADMIN = 'ROLE_ADMIN';
+    public const ROLE_USER = 'ROLE_USER';
     #[Groups(groups: ['user:info'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
-    #[Groups(groups: ['user:info'])]
+    #[Groups(groups: ['user:info', 'inventory:access'])]
     #[ORM\Column(length: 180)]
     private ?string $email = null;
 
@@ -48,9 +51,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::SMALLINT, nullable: true)]
     private ?int $isBlocked = 0;
 
+    /**
+     * @var Collection<int, InventoryAccess>
+     */
+    #[ORM\OneToMany(targetEntity: InventoryAccess::class, mappedBy: 'editor')]
+    private Collection $inventoryAccesses;
+
     public function __construct()
     {
         $this->inventories = new ArrayCollection();
+        $this->inventoryAccesses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -87,7 +97,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
+        $roles[] = self::ROLE_USER;
 
         return array_unique($roles);
     }
@@ -100,6 +110,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->roles = $roles;
 
         return $this;
+    }
+
+    public function isUserAdmin(): bool
+    {
+        return in_array(self::ROLE_ADMIN, $this->roles, true);
     }
 
     /**
@@ -175,4 +190,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, InventoryAccess>
+     */
+    public function getInventoryAccesses(): Collection
+    {
+        return $this->inventoryAccesses;
+    }
+
+//    public function addInventoryAccess(InventoryAccess $inventoryAccess): static
+//    {
+//        if (!$this->inventoryAccesses->contains($inventoryAccess)) {
+//            $this->inventoryAccesses->add($inventoryAccess);
+//            $inventoryAccess->setEditor($this);
+//        }
+//
+//        return $this;
+//    }
+//
+//    public function removeInventoryAccess(InventoryAccess $inventoryAccess): static
+//    {
+//        if ($this->inventoryAccesses->removeElement($inventoryAccess)) {
+//            // set the owning side to null (unless already changed)
+//            if ($inventoryAccess->getEditor() === $this) {
+//                $inventoryAccess->setEditor(null);
+//            }
+//        }
+//
+//        return $this;
+//    }
 }

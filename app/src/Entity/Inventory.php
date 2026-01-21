@@ -47,7 +47,7 @@ class Inventory
     #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'inventories')]
     private Collection $tags;
 
-    #[Groups(groups: ['inventory:main'])]
+    #[Groups(groups: ['inventory:main', 'inventory:access'])]
     #[Assert\Type(type: 'integer')]
     #[ORM\Column(type: Types::SMALLINT)]
     private ?int $isPublic = null;
@@ -153,10 +153,18 @@ class Inventory
     #[ORM\JoinColumn(nullable: false)]
     private ?User $owner = null;
 
+    /**
+     * @var Collection<int, InventoryAccess>
+     */
+    #[Groups(groups: ['inventory:access'])]
+    #[ORM\OneToMany(targetEntity: InventoryAccess::class, mappedBy: 'inventory', orphanRemoval: true)]
+    private Collection $inventoryAccesses;
+
     public function __construct()
     {
         $this->tags = new ArrayCollection();
         $this->inventoryItems = new ArrayCollection();
+        $this->inventoryAccesses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -661,5 +669,35 @@ class Inventory
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, InventoryAccess>
+     */
+    public function getInventoryAccesses(): Collection
+    {
+        return $this->inventoryAccesses;
+    }
+
+//    public function addInventoryAccess(InventoryAccess $inventoryAccess): static
+//    {
+//        if (!$this->inventoryAccesses->contains($inventoryAccess)) {
+//            $this->inventoryAccesses->add($inventoryAccess);
+//            $inventoryAccess->setInventory($this);
+//        }
+//
+//        return $this;
+//    }
+//
+//    public function removeInventoryAccess(InventoryAccess $inventoryAccess): static
+//    {
+//        if ($this->inventoryAccesses->removeElement($inventoryAccess)) {
+//            // set the owning side to null (unless already changed)
+//            if ($inventoryAccess->getInventory() === $this) {
+//                $inventoryAccess->setInventory(null);
+//            }
+//        }
+//
+//        return $this;
+//    }
 
 }
